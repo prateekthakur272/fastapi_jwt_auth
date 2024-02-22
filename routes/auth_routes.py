@@ -15,5 +15,5 @@ def create_user(user:UserRegister, db:Session = Depends(get_db_session)):
         return HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail='user with same email already exists')
     new_user = User(**user.model_dump(exclude=['password']), password=get_hashed_password(user.password))
     db.add(new_user)
-    # db.commit()
+    db.commit()
     return {'message':'account created successfully'}
