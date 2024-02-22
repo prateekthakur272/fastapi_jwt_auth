@@ -10,6 +10,8 @@ pydantic-settings = "*"
 sqlalchemy = "*"
 pydantic = {extras = ["email"], version = "*"}
 passlib = {extras = ["bcrypt"], version = "*"}
+python-multipart = "*"
+pyjwt = "*"
 
 [dev-packages]
 
