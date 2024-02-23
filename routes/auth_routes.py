@@ -3,10 +3,10 @@ from fastapi import Depends, status, HTTPException, Header, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from database import get_db_session
-from schemas.user_schemas import UserRegister
+from schemas.user_schemas import UserRegister, UserResponse
 from models import User
 from utils.auth_utils import get_hashed_password, get_payload, verify_password
-from services.auth_services import generate_tokens, oauth_scheme, get_current_user
+from services.auth_services import generate_tokens, get_current_user
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas.responses import TokenResponse
 
@@ -43,6 +43,6 @@ def refresh_access_token(refresh_token:str = Header(), db:Session = Depends(get_
     return generate_tokens(user, refresh_token)
 
 
-@router.get('/me')
+@router.get('/me', response_model=UserResponse)
 def get_user_details(request:Request, user:User = Depends(get_current_user)):
     return user
