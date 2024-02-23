@@ -16,7 +16,7 @@ router = APIRouter(prefix='/auth', tags=['Auth'], responses={404:{'description':
 @router.post('/register', status_code=status.HTTP_201_CREATED, response_class=JSONResponse)
 def create_user(user:UserRegister, db:Session = Depends(get_db_session)):
     if(db.query(User).filter(User.email==user.email).first()):
-        return HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail='user with same email already exists')
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail='user with same email already exists')
     new_user = User(**user.model_dump(exclude=['password']), password=get_hashed_password(user.password))
     db.add(new_user)
     db.commit()
@@ -27,9 +27,9 @@ def create_user(user:UserRegister, db:Session = Depends(get_db_session)):
 def get_token(data:OAuth2PasswordRequestForm = Depends(), db:Session = Depends(get_db_session)):
     user = db.query(User).filter(User.email==data.username).first()
     if not user:
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user not found')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user not found')
     if not verify_password(data.password, user.password):
-        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='invalid password')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='invalid password')
     return generate_tokens(user)
 
 
