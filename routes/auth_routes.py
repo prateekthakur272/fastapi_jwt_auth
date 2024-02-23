@@ -1,17 +1,18 @@
 from fastapi.routing import APIRouter
-from fastapi import Depends, status, HTTPException, Header
+from fastapi import Depends, status, HTTPException, Header, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from database import get_db_session
 from schemas.user_schemas import UserRegister
 from models import User
 from utils.auth_utils import get_hashed_password, get_payload, verify_password
-from services.auth_services import generate_tokens
+from services.auth_services import generate_tokens, get_current_user
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from schemas.responses import TokenResponse
+from datetime import timedelta, datetime
+
 
 router = APIRouter(prefix='/auth', tags=['Auth'], responses={404:{'description':'not found'}})
-oauth_scheme = OAuth2PasswordBearer(tokenUrl='/auth/token')
 
 @router.post('/register', status_code=status.HTTP_201_CREATED, response_class=JSONResponse)
 def create_user(user:UserRegister, db:Session = Depends(get_db_session)):
@@ -41,3 +42,8 @@ def refresh_access_token(refresh_token:str = Header(), db:Session = Depends(get_
     if not user_id and not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='invalid refresh token')
     return generate_tokens(user, refresh_token)
+
+
+@router.get('/me', status_code=status.HTTP_200_OK)
+def get_user_details(user:User = Depends(get_current_user)):
+    return user
