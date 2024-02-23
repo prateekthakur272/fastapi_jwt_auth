@@ -6,10 +6,9 @@ from database import get_db_session
 from schemas.user_schemas import UserRegister
 from models import User
 from utils.auth_utils import get_hashed_password, get_payload, verify_password
-from services.auth_services import generate_tokens, get_current_user
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from services.auth_services import generate_tokens, oauth_scheme, get_current_user
+from fastapi.security import OAuth2PasswordRequestForm
 from schemas.responses import TokenResponse
-from datetime import timedelta, datetime
 
 
 router = APIRouter(prefix='/auth', tags=['Auth'], responses={404:{'description':'not found'}})
@@ -44,6 +43,6 @@ def refresh_access_token(refresh_token:str = Header(), db:Session = Depends(get_
     return generate_tokens(user, refresh_token)
 
 
-@router.get('/me', status_code=status.HTTP_200_OK)
-def get_user_details(user:User = Depends(get_current_user)):
+@router.get('/me')
+def get_user_details(request:Request, user:User = Depends(get_current_user)):
     return user

@@ -6,6 +6,8 @@ from schemas.responses import TokenResponse
 from database import get_db_session
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
+from starlette.authentication import AuthCredentials, UnauthenticatedUser
+
 
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl='auth/token')
@@ -31,12 +33,25 @@ def refresh_access_token(user:User, refresh_token:str):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='invalid refresh token')
     return generate_tokens(user, refresh_token)
 
-def get_current_user(token:TokenResponse = Depends(oauth_scheme), db:Session = Depends(get_db_session)):
+def get_current_user(token:str = Depends(oauth_scheme), db:Session = Depends(get_db_session)):
     payload = get_payload(token)
-    print(payload is dict)
     if payload:
         user_id = payload.get('id', None)
         user = db.query(User).filter(User.id == user_id).first()
         if user:
             return user
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='invalid or expired token')
+
+class JWTAuth:
+    
+    async def authenticate(self, conn):
+        guest = AuthCredentials(['unauthenticated']), UnauthenticatedUser()
+        if 'Authorization' not in conn.headers:
+            return guest
+        token = conn.headers.get('Authorization').split(' ')[1]  # Bearer token_hash
+        if not token:
+            return guest
+        user = get_current_user(token=token, db=next(get_db_session()))
+        if not user:
+            return guest
+        return AuthCredentials('authenticated'), user
