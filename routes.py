@@ -3,12 +3,12 @@ from fastapi import Depends, status, HTTPException, Header, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from database import get_db_session
-from schemas.user_schemas import UserRegister, UserResponse
+from schemas import UserRegister, UserResponse
 from models import User
-from utils.auth_utils import get_hashed_password, get_payload, verify_password
-from services.auth_services import generate_tokens, get_current_user
+from utils import get_hashed_password, get_payload, verify_password
+from services import generate_tokens, get_current_user
 from fastapi.security import OAuth2PasswordRequestForm
-from schemas.responses import TokenResponse
+from schemas import TokenResponse
 
 
 router = APIRouter(prefix='/auth', tags=['Auth'], responses={404:{'description':'not found'}})

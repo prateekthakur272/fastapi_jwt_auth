@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from uvicorn import run
-from routes.auth_routes import router as auth_router
+from routes import router as auth_router
 from database import Base, engine
 
 app = FastAPI()

@@ -1,8 +1,8 @@
 from models import User
 from fastapi.exceptions import HTTPException
 from fastapi import Depends, status
-from utils.auth_utils import create_access_token, create_refresh_token, get_payload
-from schemas.responses import TokenResponse
+from utils import create_access_token, create_refresh_token, get_payload
+from schemas import TokenResponse
 from database import get_db_session
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
